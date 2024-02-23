@@ -12,5 +12,7 @@ Open terminal in the root directory and run this command to install
 bun install
 ```
 
+Next, open `src/config.js` and put in the domain of the hosting environment (with no trailing "/").
+
 - Run the `dev` script to start the development server.
 - Run the `run` script to start the production server.
