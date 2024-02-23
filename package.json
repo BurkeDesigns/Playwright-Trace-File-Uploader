@@ -1,0 +1,15 @@
+{
+  "name": "tracefileuploader",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "hono": "^4.0.5",
+    "nanoid": "^5.0.6"
+  },
+  "scripts": {
+    "dev": "bun run --hot src/index.js",
+    "run": "bun run src/index.js",
+    "install": "bun install"
+  }
+}
