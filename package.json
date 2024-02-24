@@ -9,7 +9,6 @@
   },
   "scripts": {
     "dev": "bun run --hot src/index.js",
-    "run": "bun run src/index.js",
-    "install": "bun install"
+    "run": "bun run src/index.js"
   }
 }
