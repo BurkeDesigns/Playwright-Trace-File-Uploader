@@ -28,7 +28,7 @@ fileRoutes.get("/", async (c) => {
 			type: object.type,
 			links: {
 				file: url,
-				playwright: `https://trace.playwright.dev/?trace=${url}`,
+				playwright: `${domain}/traceviewer/index.html?trace=${url}`,
 			},
 		});
 	});
@@ -46,7 +46,7 @@ fileRoutes.get("/:key", async (c) => {
 		type: object.type,
 		links: {
 			file: url,
-			playwright: `https://trace.playwright.dev/?trace=${url}`,
+			playwright: `${domain}/traceviewer/index.html?trace=${url}`,
 		},
 	});
 });
@@ -68,7 +68,7 @@ fileRoutes.put("/upload", async (c) => {
 		type: object.type,
 		links: {
 			file: url,
-			playwright: `https://trace.playwright.dev/?trace=${url}`,
+			playwright: `${domain}/traceviewer/index.html?trace=${url}`,
 		},
 	});
 });
