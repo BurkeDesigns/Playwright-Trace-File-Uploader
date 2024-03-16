@@ -23,6 +23,6 @@ app.route("/api", api);
 app.use("*", serveStatic({ root: "./src/web" }));
 
 export default {
-	port: 80,
+	port: 8080,
 	fetch: app.fetch,
 };
