@@ -24,5 +24,6 @@ app.use("*", serveStatic({ root: "./src/web" }));
 
 export default {
   port: 8080,
+  host: "0.0.0.0",
   fetch: app.fetch,
 };
