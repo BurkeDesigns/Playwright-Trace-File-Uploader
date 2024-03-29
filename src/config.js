@@ -1,1 +1,1 @@
-export const domain = "http://3.93.190.209:8080";
+export const domain = "https://d2rjpn1vhgkcan.cloudfront.net";
