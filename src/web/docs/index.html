@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="Trace File Uploader API" />
+		<title>Trace File Uploader API</title>
+		<link
+			rel="shortcut icon"
+			href="../assets/favicon.ico"
+			type="image/x-icon"
+		/>
+		<style>
+			body {
+				font-family: sans-serif;
+				font-size: 16px;
+				padding: 64px;
+				background-color: #f1f1f1;
+				color: #222;
+			}
+
+			hr {
+				width: 100%;
+				height: 2px;
+				background-color: #f1f1f1;
+				margin: 64px 0;
+				border: 0;
+			}
+			h1,
+			h2,
+			h3,
+			h4,
+			h5,
+			h6 {
+				color: royalblue;
+			}
+			a {
+				color: royalblue;
+				font-weight: bold;
+				text-underline-offset: 4px;
+			}
+			p,
+			a,
+			li {
+				line-height: 1.5em;
+			}
+			.docs {
+				padding: 64px;
+				max-width: 800px;
+				margin: auto;
+				box-shadow: 0 8px 24px #0000001c;
+				background-color: white;
+				border-radius: 8px;
+			}
+			@media (max-width: 800px) {
+				body {
+					margin: 0;
+					padding: 0px;
+				}
+				.docs {
+					padding: 23px;
+				}
+			}
+			pre {
+				background: #f9f9f9;
+				border-left: 10px solid #ccc;
+				margin: 1.5em 0px;
+				padding: 0.5em 10px;
+			}
+			.dragAndDrop {
+				display: grid;
+				width: 100%;
+				justify-content: center;
+				align-items: center;
+				height: 400px;
+				background: #f1f1f1;
+				border-radius: 20px;
+				transition: 0.3s;
+				user-select: none;
+				cursor: pointer;
+				font-size: 20px;
+				font-weight: bold;
+				color: #555;
+				padding: 32px;
+				box-sizing: border-box;
+				position: relative;
+			}
+			.dragAndDrop:hover {
+				color: royalblue;
+				background: #e0e0e0;
+			}
+			.dragAndDrop:before {
+				content: "";
+				position: absolute;
+				inset: 32px;
+				border: 5px dashed rgba(0, 0, 0, 0.22); /* Style of the dotted line */
+				pointer-events: none; /* Prevents the pseudo-element from interfering with mouse events */
+				border-radius: 20px;
+				transition: 0.2s;
+			}
+			.dragAndDrop:hover:before {
+				border: 5px dashed royalblue;
+			}
+			.dragAndDrop.dragOver {
+				background: royalblue !important;
+				color: white;
+			}
+			.dragAndDrop.dragOver:before {
+				border: 5px dashed white !important;
+			}
+			.uploading {
+				background: antiquewhite !important;
+				color: #876f50 !important;
+			}
+			.uploading:before {
+				border: 5px dashed #876f50 !important;
+			}
+			.listHorz {
+				display: grid;
+				grid-gap: 8px;
+				grid-auto-flow: column;
+				justify-content: end;
+			}
+		</style>
+		<style>
+			.tableContainer {
+				border-radius: 20px;
+				background: #f1f1f1;
+				padding: 14px;
+				margin: 20px 0;
+				overflow: auto;
+				max-height: 500px;
+			}
+			#modernTable {
+				width: 100%;
+				border-collapse: collapse;
+				border-radius: 10px;
+				overflow: hidden;
+			}
+
+			#modernTable th,
+			#modernTable td {
+				text-align: left;
+				padding: 8px;
+			}
+
+			#modernTable thead {
+				background-color: #f2f2f2;
+			}
+
+			#modernTable tr:nth-child(even) {
+				background-color: #f9f9f9;
+			}
+			#modernTable tr:nth-child(odd) {
+				background-color: #ffffff;
+			}
+
+			#modernTable th {
+				background-color: royalblue;
+				color: white;
+			}
+
+			button {
+				padding: 5px;
+				background-color: rgba(0, 0, 0, 0.07);
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+				color: #222;
+				fill: #222;
+				transition: 0.2s;
+			}
+
+			button:hover {
+				background-color: royalblue;
+				color: white;
+				fill: white;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app" class="docs">
+			<h1>Trace File Uploader Docs</h1>
+			<p>
+				Welcome to Trace File Uploader! Trace File Uploader is a
+				wonderful/powerful playwright trace store specifically designed
+				to simplify sharing.
+			</p>
+			<p>
+				All data stored in Trace File Uploader lives on your
+				server/network and is made available via API for your preferred
+				testing environment.
+			</p>
+			<hr />
+			<h2>Demo</h2>
+			<label
+				:class="{ 'dragOver': isDraggingOver, 'dragAndDrop':true, 'uploading': uploadingStatus }"
+				for="fileInput"
+				@dragover.prevent="handleDragOver"
+				@dragenter.prevent="handleDragEnter"
+				@dragleave.prevent="handleDragLeave"
+				@drop.prevent="handleFileDrop"
+				>{{uploadingStatus? 'Uploading...' : 'Upload Trace Zip'}}</label
+			>
+			<input
+				type="file"
+				id="fileInput"
+				multiple
+				accept="application/zip"
+				@change="handleInputFiles"
+				hidden
+			/>
+			<!-- <button onclick="uploadFiles()">Upload Files</button> -->
+
+			<div class="tableContainer" v-show="traceFiles.length > 0">
+				<table id="modernTable">
+					<thead>
+						<tr>
+							<th>Trace File</th>
+							<th>Size</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="item in traceFiles">
+							<td>
+								<a :href="item.links.playwright" target="_blank"
+									>{{item.name}}</a
+								>
+							</td>
+							<td>{{formatSize(item.size)}}</td>
+							<td>
+								<div class="listHorz">
+									<a :href="item.links.file" download>
+										<button>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												height="24"
+												viewBox="0 -960 960 960"
+												width="24"
+											>
+												<path
+													d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"
+												/>
+											</svg>
+										</button>
+									</a>
+									<button @click="deleteFile(item.name)">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											height="24"
+											viewBox="0 -960 960 960"
+											width="24"
+										>
+											<path
+												d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"
+											/>
+										</svg>
+									</button>
+								</div>
+							</td>
+						</tr>
+						<!-- Add more rows as needed -->
+					</tbody>
+				</table>
+			</div>
+
+			<hr />
+			<h3>Getting Started</h3>
+			<p>
+				Use the endpoints listed below for our HTTP API. We also offer a
+				JavaScript library for quick/easy implementations
+				<a href="#jsAPI">HERE</a>.
+			</p>
+			<br />
+			<h3>Endpoints</h3>
+			<p><b>GET /api/files</b> = lists all files</p>
+			<p><b>GET /api/files/:name</b> = lists one file</p>
+			<p><b>PUT /api/files/upload</b> = uploads one file</p>
+			<p><b>POST /api/files/delete/:name</b> = deletes one file</p>
+			<br />
+			<h4>Endpoint Errors</h4>
+			<p>
+				Errors are returned as a JSON object with a false success
+				property and a string msg property explaining the error.
+			</p>
+			<pre>{ success: false, msg: "page not found" }</pre>
+			<hr />
+			<h3 id="jsAPI">JavaScript API</h3>
+			<p>
+				Load this script in your Javascript testing framework. Please
+				note this is an asynchronous JavaScript API, so you must await
+				each method in order to see the JSON response.
+			</p>
+			<pre>{{jsAPI.script}}</pre>
+			<p>
+				Once the script is loaded, create a new variable and give your
+				store a name (example below). Replace "DOMAIN_HERE" with the
+				domain of wherever you host this (do not add a trailing "/").
+			</p>
+			<pre>let api = new TraceFileUploader("DOMAIN_HERE");</pre>
+
+			<h4>API Methods</h4>
+			<p>The "<b>files</b>" method lists all files or one file.</p>
+			<pre>let files = await api.files();</pre>
+			<pre>let file = await api.files("FILENAME_HERE");</pre>
+
+			<p>The "<b>deleteFile</b>" method deletes a file.</p>
+			<pre>let deleted = await api.deleteFile("FILENAME_HERE");</pre>
+		</div>
+		<!-- <script src="/assets/v3.2.47.vue.global.prod.min.js"></script> -->
+		<script
+			src="/assets/vue-3.4.19-global.prod.min.js"
+			integrity="sha512-fKBNYyrjNXpxYeecQyWzpvdaD1p+8MUKpiTF3oPkSggVIpq6R17Q7EZ6RFg8PBoSslppmWeUvUWPp8NBr8b3Aw=="
+			crossorigin="anonymous"
+			referrerpolicy="no-referrer"
+		></script>
+		<script src="/assets/traceFileUploader.js"></script>
+		<script type="module">
+			const { createApp, nextTick } = Vue;
+			createApp({
+				data() {
+					return {
+						api: null,
+						isDraggingOver: false,
+						uploadingStatus: false,
+						jsAPI: {
+							script: `/assets/traceFileUploader.js`,
+						},
+						traceFiles: [],
+					};
+				},
+				methods: {
+					handleDragOver(event) {
+						this.isDraggingOver = true;
+						console.log("handleDragOver");
+					},
+					handleDragEnter(event) {
+						console.log("handleDragEnter");
+					},
+					handleDragLeave(event) {
+						this.isDraggingOver = false;
+						console.log("handleDragLeave");
+					},
+					async handleFileDrop(event) {
+						console.log("handleFileDrop");
+						const files = event.dataTransfer.files;
+						console.log(files);
+						this.isDraggingOver = false;
+						await this.uploadFiles(files);
+					},
+					async handleInputFiles(e) {
+						console.log(e.target.files);
+						await this.uploadFiles(e.target.files);
+					},
+					async uploadFiles(files) {
+						this.uploadingStatus = true;
+						let uploaded = await this.api.upload(files);
+						this.uploadingStatus = false;
+						this.traceFiles = [...uploaded, ...this.traceFiles];
+						this.loadTraceFiles();
+					},
+					formatDate(date) {
+						let d = new Date(date);
+						return d.toLocaleDateString("en-us", {
+							weekday: "short",
+							year: "numeric",
+							month: "short",
+							day: "numeric",
+						});
+					},
+					formatSize(bytes) {
+						const formatBytes = Intl.NumberFormat("en", {
+							notation: "compact",
+							style: "unit",
+							unit: "byte",
+							unitDisplay: "narrow",
+						});
+						return formatBytes.format(bytes);
+					},
+					async deleteFile(key) {
+						const index = this.traceFiles.findIndex(
+							(item) => item.name === key
+						);
+						// If the item exists, remove it
+						if (index !== -1) this.traceFiles.splice(index, 1);
+						let deleted = await this.api.deleteFile(key);
+						this.loadTraceFiles();
+						// sessionStorage.traceFiles = JSON.stringify(this.traceFiles);
+					},
+					async loadTraceFiles() {
+						// if(sessionStorage.traceFiles)  this.traceFiles = JSON.parse(sessionStorage.traceFiles);
+						let traceFiles = await this.api.files();
+						this.traceFiles = traceFiles.objects;
+						// sessionStorage.traceFiles = JSON.stringify(this.traceFiles);
+						console.log("trace files", traceFiles.objects);
+					},
+				},
+				computed: {},
+				async mounted() {
+					let x = this;
+					x.api = new TraceFileUploader();
+					this.loadTraceFiles();
+				},
+			}).mount("#app");
+		</script>
+	</body>
+</html>

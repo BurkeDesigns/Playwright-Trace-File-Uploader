@@ -1,473 +1,463 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<meta name="description" content="Trace File Uploader API" />
-		<title>Trace File Uploader API</title>
-		<link
-			rel="shortcut icon"
-			href="../assets/favicon.ico"
-			type="image/x-icon"
-		/>
-		<style>
-			:root {
-				--theme-bg: #ffffff;
-				--theme-text-color: #222222;
-				--theme-p1: royalblue;
-				--theme-light-bg: #f1f1f1;
-			}
-			body {
-				font-family: sans-serif;
-				font-size: 16px;
-				margin: 0;
-				box-sizing: border-box;
-			}
-			body * {
-				box-sizing: border-box;
-			}
-			.dark {
-				--theme-bg: #222222;
-				--theme-text-color: hsla(0, 0%, 100%, 0.85);
-				--theme-p1: royalblue;
-				--theme-light-bg: hsla(0, 0%, 100%, 0.13);
 
-				--theme-table-odd: #222;
-				--theme-table-even: hsla(0, 0%, 0%, 0.35);
-			}
-			#app {
-				background-color: var(--theme-bg);
-				color: var(--theme-text-color);
-			}
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="description" content="Trace File Uploader API" />
+	<title>Trace File Uploader API</title>
+	<link rel="shortcut icon" href="../assets/favicon.ico" type="image/x-icon" />
+	<style>
+		:root {
+			--theme-bg: #ffffff;
+			--theme-text-color: #222222;
+			--theme-p1: royalblue;
+			--theme-light-bg: #f1f1f1;
+		}
 
-			h1,
-			h2,
-			h3,
-			h4,
-			h5,
-			h6 {
-				color: var(--theme-p1);
-			}
-			a {
-				color: var(--theme-p1);
-				font-weight: bold;
-				text-underline-offset: 4px;
-			}
-			p,
-			a,
-			li {
-				line-height: 1.5em;
-			}
+		body {
+			font-family: sans-serif;
+			font-size: 16px;
+			margin: 0;
+			box-sizing: border-box;
+		}
+
+		body * {
+			box-sizing: border-box;
+		}
+
+		.dark {
+			--theme-bg: #222222;
+			--theme-text-color: hsla(0, 0%, 100%, 0.85);
+			--theme-p1: royalblue;
+			--theme-light-bg: hsla(0, 0%, 100%, 0.13);
+
+			--theme-table-odd: #222;
+			--theme-table-even: hsla(0, 0%, 0%, 0.35);
+		}
+
+		#app {
+			background-color: var(--theme-bg);
+			color: var(--theme-text-color);
+		}
+
+		h1,
+		h2,
+		h3,
+		h4,
+		h5,
+		h6 {
+			color: var(--theme-p1);
+		}
+
+		a {
+			color: var(--theme-p1);
+			font-weight: bold;
+			text-underline-offset: 4px;
+		}
+
+		p,
+		a,
+		li {
+			line-height: 1.5em;
+		}
+
+		.docs {
+			max-width: 1200px;
+			margin: auto;
+			display: grid;
+			grid-auto-flow: column;
+			grid-gap: 32px;
+			height: 100svh;
+			padding: 64px;
+		}
+
+		.docs>*:nth-child(1) {
+			display: grid;
+			grid-template-rows: max-content 1fr;
+		}
+
+		@media (max-width: 1000px) {
 			.docs {
-				max-width: 1200px;
-				margin: auto;
-				display: grid;
-				grid-auto-flow: column;
-				grid-gap: 32px;
-				height: 100svh;
-				padding: 64px;
+				grid-auto-flow: row;
+				height: auto;
 			}
-			.docs > *:nth-child(1) {
-				display: grid;
-				grid-template-rows: max-content 1fr;
-			}
-			@media (max-width: 1000px) {
-				.docs {
-					grid-auto-flow: row;
-					height: auto;
-				}
-			}
-			@media (max-width: 800px) {
-				h1 {
-					font-size: 24px;
-				}
-				.docs {
-					padding: 23px;
-				}
-			}
-			.dragAndDrop {
-				display: grid;
-				width: 100%;
-				justify-content: center;
-				align-items: center;
-				min-height: 400px;
-				background: var(--theme-light-bg);
-				border-radius: 20px;
-				transition: 0.3s;
-				user-select: none;
-				cursor: pointer;
-				font-size: 20px;
-				font-weight: bold;
-				color: #555;
-				padding: 32px;
-				box-sizing: border-box;
-				position: relative;
-			}
-			.dragAndDrop:hover {
-				color: var(--theme-p1);
-				background: #e0e0e0;
-			}
-			.dragAndDrop:before {
-				content: "";
-				position: absolute;
-				inset: 32px;
-				border: 5px dashed rgba(0, 0, 0, 0.22); /* Style of the dotted line */
-				pointer-events: none; /* Prevents the pseudo-element from interfering with mouse events */
-				border-radius: 20px;
-				transition: 0.2s;
-			}
-			.dragAndDrop:hover:before {
-				border: 5px dashed var(--theme-p1);
-			}
-			.dragAndDrop.dragOver {
-				background: var(--theme-p1) !important;
-				color: white;
-			}
-			.dragAndDrop.dragOver:before {
-				border: 5px dashed white !important;
-			}
-			.uploading {
-				background: antiquewhite !important;
-				color: #876f50 !important;
-			}
-			.uploading:before {
-				border: 5px dashed #876f50 !important;
-			}
-			.listHorz {
-				display: grid;
-				grid-gap: 8px;
-				grid-auto-flow: column;
-				justify-content: end;
-			}
-			.listColumn {
-				display: grid;
-				grid-gap: 24px;
-				grid-auto-flow: column;
-				justify-content: start;
-				align-items: center;
-				align-content: center;
-			}
-		</style>
-		<style>
-			.tableContainer {
-				border-radius: 20px;
-				background: var(--theme-light-bg);
-				padding: 14px;
-				margin: 0;
-				overflow: auto;
-				align-self: stretch;
-			}
-			#modernTable {
-				width: 100%;
-				border-collapse: collapse;
-				border-radius: 10px;
-				overflow: hidden;
+		}
+
+		@media (max-width: 800px) {
+			h1 {
+				font-size: 24px;
 			}
 
-			#modernTable th,
-			#modernTable td {
-				text-align: left;
-				padding: 8px;
+			.docs {
+				padding: 23px;
 			}
+		}
 
-			#modernTable thead {
-				background-color: #f2f2f2;
-			}
+		.dragAndDrop {
+			display: grid;
+			width: 100%;
+			justify-content: center;
+			align-items: center;
+			min-height: 400px;
+			background: var(--theme-light-bg);
+			border-radius: 20px;
+			transition: 0.3s;
+			user-select: none;
+			cursor: pointer;
+			font-size: 20px;
+			font-weight: bold;
+			color: #555;
+			padding: 32px;
+			box-sizing: border-box;
+			position: relative;
+		}
 
-			#modernTable tr:nth-child(even) {
-				background-color: var(
-					--theme-table-even,
-					hsla(0, 0%, 100%, 0.65)
-				);
-			}
-			#modernTable tr:nth-child(odd) {
-				background-color: var(--theme-table-odd, hsla(0, 0%, 100%, 1));
-			}
+		.dragAndDrop:hover {
+			color: var(--theme-p1);
+			background: #e0e0e0;
+		}
 
-			#modernTable th {
-				background-color: var(--theme-p1);
-				color: white;
-			}
+		.dragAndDrop:before {
+			content: "";
+			position: absolute;
+			inset: 32px;
+			border: 5px dashed rgba(0, 0, 0, 0.22);
+			/* Style of the dotted line */
+			pointer-events: none;
+			/* Prevents the pseudo-element from interfering with mouse events */
+			border-radius: 20px;
+			transition: 0.2s;
+		}
 
-			button {
-				padding: 5px;
-				background-color: rgba(0, 0, 0, 0.07);
-				border: none;
-				border-radius: 5px;
-				cursor: pointer;
-				color: var(--theme-text-color);
-				fill: var(--theme-text-color);
-				transition: 0.2s;
-			}
+		.dragAndDrop:hover:before {
+			border: 5px dashed var(--theme-p1);
+		}
 
-			button:hover {
-				background-color: var(--theme-p1);
-				color: white;
-				fill: white;
-			}
-		</style>
-	</head>
-	<body>
-		<div id="app">
-			<!-- <div id="app" class="dark"> -->
-			<div class="docs">
-				<div>
-					<div class="listColumn">
-						<h1>Trace File Uploader</h1>
-						<a href="/docs"><button>DOCS</button></a>
-					</div>
-					<label
-						:class="{ 'dragOver': isDraggingOver, 'dragAndDrop':true, 'uploading': uploadingStatus }"
-						for="fileInput"
-						@dragover.prevent="handleDragOver"
-						@dragenter.prevent="handleDragEnter"
-						@dragleave.prevent="handleDragLeave"
-						@drop.prevent="handleFileDrop"
-					>
-						{{uploadingStatus? 'Uploading...' : 'Upload Trace Zip'}}
-					</label>
-					<input
-						type="file"
-						id="fileInput"
-						multiple
-						accept="application/zip"
-						@change="handleInputFiles"
-						hidden
-					/>
+		.dragAndDrop.dragOver {
+			background: var(--theme-p1) !important;
+			color: white;
+		}
+
+		.dragAndDrop.dragOver:before {
+			border: 5px dashed white !important;
+		}
+
+		.uploading {
+			background: antiquewhite !important;
+			color: #876f50 !important;
+		}
+
+		.uploading:before {
+			border: 5px dashed #876f50 !important;
+		}
+
+		.listHorz {
+			display: grid;
+			grid-gap: 8px;
+			grid-auto-flow: column;
+			justify-content: end;
+		}
+
+		.listColumn {
+			display: grid;
+			grid-gap: 24px;
+			grid-auto-flow: column;
+			justify-content: start;
+			align-items: center;
+			align-content: center;
+		}
+	</style>
+	<style>
+		.tableContainer {
+			border-radius: 20px;
+			background: var(--theme-light-bg);
+			padding: 14px;
+			margin: 0;
+			overflow: auto;
+			align-self: stretch;
+		}
+
+		#modernTable {
+			width: 100%;
+			border-collapse: collapse;
+			border-radius: 10px;
+			overflow: hidden;
+		}
+
+		#modernTable th,
+		#modernTable td {
+			text-align: left;
+			padding: 8px;
+		}
+
+		#modernTable thead {
+			background-color: #f2f2f2;
+		}
+
+		#modernTable tr:nth-child(even) {
+			background-color: var(--theme-table-even,
+					hsla(0, 0%, 100%, 0.65));
+		}
+
+		#modernTable tr:nth-child(odd) {
+			background-color: var(--theme-table-odd, hsla(0, 0%, 100%, 1));
+		}
+
+		#modernTable th {
+			background-color: var(--theme-p1);
+			color: white;
+		}
+
+		button {
+			padding: 5px;
+			background-color: rgba(0, 0, 0, 0.07);
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			color: var(--theme-text-color);
+			fill: var(--theme-text-color);
+			transition: 0.2s;
+		}
+
+		button:hover {
+			background-color: var(--theme-p1);
+			color: white;
+			fill: white;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="app">
+		<!-- <div id="app" class="dark"> -->
+		<div class="docs">
+			<div>
+				<div class="listColumn">
+					<h1>Trace File Uploader</h1>
+					<a href="/docs"><button>DOCS</button></a>
 				</div>
+				<label :class="{ 'dragOver': isDraggingOver, 'dragAndDrop':true, 'uploading': uploadingStatus }"
+					for="fileInput" @dragover.prevent="handleDragOver" @dragenter.prevent="handleDragEnter"
+					@dragleave.prevent="handleDragLeave" @drop.prevent="handleFileDrop">
+					{{uploadingStatus? 'Uploading...' : 'Upload Trace Zip'}}
+				</label>
+				<input type="file" id="fileInput" multiple accept="application/zip" @change="handleInputFiles" hidden />
+			</div>
 
-				<div class="tableContainer" v-if="traceFiles.length > 0">
-					<table id="modernTable">
-						<thead>
-							<tr>
-								<th>Trace File</th>
-								<th>Size</th>
-								<th>Action</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr v-for="item in traceFiles">
-								<td>
-									<a
-										:href="item.links.playwright"
-										target="_blank"
-										>{{item.name}}</a
-									>
-								</td>
-								<td>{{formatSize(item.size)}}</td>
-								<td>
-									<div class="listHorz">
-										<button
-											@click="copyText(item.links.playwright)"
-										>
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												height="24"
-												viewBox="0 -960 960 960"
-												width="24"
-											>
+			<div class="tableContainer" v-if="traceFiles.length > 0">
+				<table id="modernTable">
+					<thead>
+						<tr>
+							<th>Trace File</th>
+							<th>Size</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="item in traceFiles">
+							<td
+								style="display: grid;grid-gap:12px;grid-auto-flow: column;align-items: center;justify-content: start;">
+								<button @click="copyText(item.links.playwright)">
+									<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960"
+										width="24">
+										<path
+											d="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z" />
+									</svg>
+								</button>
+								<a :href="item.links.playwright" target="_blank">{{item.name}}</a>
+							</td>
+							<td>{{formatSize(item.size)}}</td>
+							<td>
+								<div class="listHorz">
+									<a :href="item.links.file" download>
+										<button>
+											<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960"
+												width="24">
 												<path
-													d="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z"
-												/>
+													d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
 											</svg>
 										</button>
-										<a :href="item.links.file" download>
-											<button>
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													height="24"
-													viewBox="0 -960 960 960"
-													width="24"
-												>
-													<path
-														d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"
-													/>
-												</svg>
-											</button>
-										</a>
-										<button @click="deleteFile(item.name)">
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												height="24"
-												viewBox="0 -960 960 960"
-												width="24"
-											>
-												<path
-													d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"
-												/>
-											</svg>
-										</button>
-									</div>
-								</td>
-							</tr>
-							<!-- Add more rows as needed -->
-						</tbody>
-					</table>
-				</div>
+									</a>
+									<button @click="deleteFile(item.name)">
+										<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960"
+											width="24">
+											<path
+												d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z" />
+										</svg>
+									</button>
+								</div>
+							</td>
+						</tr>
+						<!-- Add more rows as needed -->
+					</tbody>
+				</table>
 			</div>
 		</div>
+	</div>
 
-		<!-- <script src="/assets/vue-3.4.19-global.prod.min.js"></script> -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
-		<!-- <script src="/assets/traceFileUploader.js"></script> -->
-		<script>
-			class TraceFileUploader {
-				constructor(domain = "") {
-					this.root = this;
-					this._url = `${domain}/api`;
-				}
-				async files(key) {
-					let url = `${this._url}/files`;
-					if (key != null) url = `${this._url}/files/${key}`;
-					let res = await this.get(url);
-					return res;
-				}
-				async upload(files) {
-					const x = this;
-					const filesArray = Array.from(files);
-					const promises = filesArray.map((file) =>
-						x.put(`${this._url}/files/upload`, file)
-					);
-					const results = await Promise.all(promises);
-					return results;
-				}
-				async deleteFile(key) {
-					let res = await this.post(
-						`${this._url}/files/delete/${key}`
-					);
-					return res;
-				}
-
-				// utility functions
-				async post(url, data = {}) {
-					let x = this;
-					const res = await fetch(url, {
-						method: "POST", // or 'PUT'
-						headers: {
-							Authorization: this.token,
-						},
-						body: JSON.stringify(data),
-					});
-					return res.json();
-				}
-
-				async get(url) {
-					let x = this;
-					const res = await fetch(url, {
-						headers: {
-							Authorization: x.token,
-						},
-					});
-					return res.json();
-				}
-
-				async put(url, file) {
-					const formData = new FormData();
-					formData.append("file", file);
-
-					const res = await fetch(url, {
-						method: "PUT",
-						headers: {
-							Authorization: this.token,
-						},
-						body: formData,
-					});
-					return res.json();
-				}
+	<!-- <script src="/assets/vue-3.4.19-global.prod.min.js"></script> -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
+	<!-- <script src="/assets/traceFileUploader.js"></script> -->
+	<script>
+		class TraceFileUploader {
+			constructor(domain = "") {
+				this.root = this;
+				this._url = `${domain}/api`;
 			}
-		</script>
-		<script type="module">
-			const { createApp, nextTick } = Vue;
-			createApp({
-				data() {
-					return {
-						api: null,
-						isDraggingOver: false,
-						uploadingStatus: false,
-						jsAPI: {
-							script: `/assets/traceFileUploader.js`,
-						},
-						traceFiles: [],
-					};
+			async files(key) {
+				let url = `${this._url}/files`;
+				if (key != null) url = `${this._url}/files/${key}`;
+				let res = await this.get(url);
+				return res;
+			}
+			async upload(files) {
+				const x = this;
+				const filesArray = Array.from(files);
+				const promises = filesArray.map((file) =>
+					x.put(`${this._url}/files/upload`, file)
+				);
+				const results = await Promise.all(promises);
+				return results;
+			}
+			async deleteFile(key) {
+				let res = await this.post(
+					`${this._url}/files/delete/${key}`
+				);
+				return res;
+			}
+
+			// utility functions
+			async post(url, data = {}) {
+				let x = this;
+				const res = await fetch(url, {
+					method: "POST", // or 'PUT'
+					headers: {
+						Authorization: this.token,
+					},
+					body: JSON.stringify(data),
+				});
+				return res.json();
+			}
+
+			async get(url) {
+				let x = this;
+				const res = await fetch(url, {
+					headers: {
+						Authorization: x.token,
+					},
+				});
+				return res.json();
+			}
+
+			async put(url, file) {
+				const formData = new FormData();
+				formData.append("file", file);
+
+				const res = await fetch(url, {
+					method: "PUT",
+					headers: {
+						Authorization: this.token,
+					},
+					body: formData,
+				});
+				return res.json();
+			}
+		}
+	</script>
+	<script type="module">
+		const { createApp, nextTick } = Vue;
+		createApp({
+			data() {
+				return {
+					api: null,
+					isDraggingOver: false,
+					uploadingStatus: false,
+					jsAPI: {
+						script: `/assets/traceFileUploader.js`,
+					},
+					traceFiles: [],
+				};
+			},
+			methods: {
+				handleDragOver(event) {
+					this.isDraggingOver = true;
+					console.log("handleDragOver");
 				},
-				methods: {
-					handleDragOver(event) {
-						this.isDraggingOver = true;
-						console.log("handleDragOver");
-					},
-					handleDragEnter(event) {
-						console.log("handleDragEnter");
-					},
-					handleDragLeave(event) {
-						this.isDraggingOver = false;
-						console.log("handleDragLeave");
-					},
-					async handleFileDrop(event) {
-						console.log("handleFileDrop");
-						const files = event.dataTransfer.files;
-						console.log(files);
-						this.isDraggingOver = false;
-						await this.uploadFiles(files);
-					},
-					async handleInputFiles(e) {
-						console.log(e.target.files);
-						await this.uploadFiles(e.target.files);
-					},
-					async uploadFiles(files) {
-						this.uploadingStatus = true;
-						let uploaded = await this.api.upload(files);
-						this.uploadingStatus = false;
-						this.traceFiles = [...uploaded, ...this.traceFiles];
-						this.loadTraceFiles();
-					},
-					formatDate(date) {
-						let d = new Date(date);
-						return d.toLocaleDateString("en-us", {
-							weekday: "short",
-							year: "numeric",
-							month: "short",
-							day: "numeric",
-						});
-					},
-					formatSize(bytes) {
-						const formatBytes = Intl.NumberFormat("en", {
-							notation: "compact",
-							style: "unit",
-							unit: "byte",
-							unitDisplay: "narrow",
-						});
-						return formatBytes.format(bytes);
-					},
-					async deleteFile(key) {
-						const index = this.traceFiles.findIndex(
-							(item) => item.name === key
-						);
-						// If the item exists, remove it
-						if (index !== -1) this.traceFiles.splice(index, 1);
-						let deleted = await this.api.deleteFile(key);
-						this.loadTraceFiles();
-						// sessionStorage.traceFiles = JSON.stringify(this.traceFiles);
-					},
-					async loadTraceFiles() {
-						// if(sessionStorage.traceFiles)  this.traceFiles = JSON.parse(sessionStorage.traceFiles);
-						let traceFiles = await this.api.files();
-						this.traceFiles = traceFiles.objects;
-						// sessionStorage.traceFiles = JSON.stringify(this.traceFiles);
-						console.log("trace files", traceFiles.objects);
-					},
-					// utilities
-					async copyText(text) {
-						navigator.clipboard.writeText(text);
-					},
+				handleDragEnter(event) {
+					console.log("handleDragEnter");
 				},
-				computed: {},
-				async mounted() {
-					let x = this;
-					x.api = new TraceFileUploader();
+				handleDragLeave(event) {
+					this.isDraggingOver = false;
+					console.log("handleDragLeave");
+				},
+				async handleFileDrop(event) {
+					console.log("handleFileDrop");
+					const files = event.dataTransfer.files;
+					console.log(files);
+					this.isDraggingOver = false;
+					await this.uploadFiles(files);
+				},
+				async handleInputFiles(e) {
+					console.log(e.target.files);
+					await this.uploadFiles(e.target.files);
+				},
+				async uploadFiles(files) {
+					this.uploadingStatus = true;
+					let uploaded = await this.api.upload(files);
+					this.uploadingStatus = false;
+					this.traceFiles = [...uploaded, ...this.traceFiles];
 					this.loadTraceFiles();
 				},
-			}).mount("#app");
-		</script>
-	</body>
+				formatDate(date) {
+					let d = new Date(date);
+					return d.toLocaleDateString("en-us", {
+						weekday: "short",
+						year: "numeric",
+						month: "short",
+						day: "numeric",
+					});
+				},
+				formatSize(bytes) {
+					const formatBytes = Intl.NumberFormat("en", {
+						notation: "compact",
+						style: "unit",
+						unit: "byte",
+						unitDisplay: "narrow",
+					});
+					return formatBytes.format(bytes);
+				},
+				async deleteFile(key) {
+					const index = this.traceFiles.findIndex(
+						(item) => item.name === key
+					);
+					// If the item exists, remove it
+					if (index !== -1) this.traceFiles.splice(index, 1);
+					let deleted = await this.api.deleteFile(key);
+					this.loadTraceFiles();
+					// sessionStorage.traceFiles = JSON.stringify(this.traceFiles);
+				},
+				async loadTraceFiles() {
+					// if(sessionStorage.traceFiles)  this.traceFiles = JSON.parse(sessionStorage.traceFiles);
+					let traceFiles = await this.api.files();
+					this.traceFiles = traceFiles.objects;
+					// sessionStorage.traceFiles = JSON.stringify(this.traceFiles);
+					console.log("trace files", traceFiles.objects);
+				},
+				// utilities
+				async copyText(text) {
+					navigator.clipboard.writeText(text);
+				},
+			},
+			computed: {},
+			async mounted() {
+				let x = this;
+				x.api = new TraceFileUploader();
+				this.loadTraceFiles();
+			},
+		}).mount("#app");
+	</script>
+</body>
+
 </html>
