@@ -1,1 +1,1 @@
-export const domain = "https://3.93.190.209";
+export const domain = "http://3.93.190.209:8080";
